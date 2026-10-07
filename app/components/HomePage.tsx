@@ -36,15 +36,36 @@ const formatINR = (value: number) =>
 
 export function HomePage() {
   const [menuOpen, setMenuOpen] = useState(false);
+  const [heroReady, setHeroReady] = useState(false);
   const [amount, setAmount] = useState(300000);
   const [rate, setRate] = useState(14);
   const [months, setMonths] = useState(36);
+  const [emiPulse, setEmiPulse] = useState(false);
 
   const monthlyRate = rate / 12 / 100;
   const factor = (1 + monthlyRate) ** months;
   const monthlyPayment = (amount * monthlyRate * factor) / (factor - 1);
 
   useEffect(() => {
+    const frame = requestAnimationFrame(() => setHeroReady(true));
+    return () => cancelAnimationFrame(frame);
+  }, []);
+
+  useEffect(() => {
+    setEmiPulse(true);
+    const timer = window.setTimeout(() => setEmiPulse(false), 420);
+    return () => window.clearTimeout(timer);
+  }, [monthlyPayment]);
+
+  useEffect(() => {
+    const reduced = window.matchMedia("(prefers-reduced-motion: reduce)").matches;
+    const nodes = Array.from(document.querySelectorAll<HTMLElement>(".reveal"));
+
+    if (reduced) {
+      nodes.forEach((item) => item.classList.add("visible"));
+      return;
+    }
+
     const observer = new IntersectionObserver(
       (entries) => {
         entries.forEach((entry) => {
@@ -54,10 +75,10 @@ export function HomePage() {
           }
         });
       },
-      { threshold: 0.12 },
+      { threshold: 0.16, rootMargin: "0px 0px -10% 0px" },
     );
 
-    document.querySelectorAll(".reveal").forEach((item) => observer.observe(item));
+    nodes.forEach((item) => observer.observe(item));
     return () => observer.disconnect();
   }, []);
 
@@ -87,25 +108,25 @@ export function HomePage() {
       </header>
 
       <main id="top">
-        <section className="hero">
+        <section className={`hero${heroReady ? " hero-ready" : ""}`}>
           <div className="hero-grid" aria-hidden="true" />
-          <div className="hero-copy reveal">
-            <p className="eyebrow"><i /> RBI REGISTERED NBFC</p>
-            <h1>
-              Finergy Finance —
-              <br />
-              make your next
-              <br />
-              move <em>matter.</em>
+          <div className="hero-copy">
+            <p className="eyebrow hero-line"><i /> RBI REGISTERED NBFC</p>
+            <h1 className="hero-title">
+              <span className="hero-line">Finergy Finance —</span>
+              <span className="hero-line">make your next</span>
+              <span className="hero-line">
+                move <em>matter.</em>
+              </span>
             </h1>
-            <p className="hero-description">
+            <p className="hero-description hero-line">
               Finergy Finance Private Limited is an RBI-registered NBFC offering personal finance, business finance, and lending partnerships that help people and businesses across India take their next step with confidence.
             </p>
-            <div className="hero-actions">
+            <div className="hero-actions hero-line">
               <a className="button button-gold" href="#solutions">Explore solutions <span>↗</span></a>
               <a className="text-link" href="#about">Get to know Finergy <span>↓</span></a>
             </div>
-            <div className="hero-note">
+            <div className="hero-note hero-line">
               <span className="note-star">✳</span>
               <span>
                 Clear guidance. Considered support.
@@ -114,7 +135,7 @@ export function HomePage() {
               </span>
             </div>
           </div>
-          <div className="hero-art reveal">
+          <div className="hero-art">
             <div className="hero-photo">
               <img
                 src="/images/hero-nbfc.jpg"
@@ -144,17 +165,25 @@ export function HomePage() {
           </div>
           <div className="hero-footer">
             <span>FINERGY FINANCE PRIVATE LIMITED · RBI REGISTERED NBFC</span>
-            <a href="#solutions">SCROLL TO EXPLORE ↓</a>
+            <a className="scroll-cue" href="#solutions">SCROLL TO EXPLORE ↓</a>
           </div>
         </section>
 
         <section className="principles-strip" aria-label="Our principles">
-          <span>✳ &nbsp;RBI registered NBFC</span>
-          <span>✳ &nbsp;Built on clarity</span>
-          <span>✳ &nbsp;Designed around people</span>
-          <b>
-            A more thoughtful way forward <i>↗</i>
-          </b>
+          <div className="principles-track">
+            {[0, 1].map((copy) => (
+              <div className="principles-group" key={copy} aria-hidden={copy === 1 || undefined}>
+                <span>✳ &nbsp;RBI registered NBFC</span>
+                <span>✳ &nbsp;Built on clarity</span>
+                <span>✳ &nbsp;Designed around people</span>
+                <span>✳ &nbsp;A more thoughtful way forward</span>
+                <span>✳ &nbsp;RBI registered NBFC</span>
+                <span>✳ &nbsp;Built on clarity</span>
+                <span>✳ &nbsp;Designed around people</span>
+                <span>✳ &nbsp;A more thoughtful way forward</span>
+              </div>
+            ))}
+          </div>
         </section>
 
         <section className="section solutions" id="solutions">
@@ -172,8 +201,8 @@ export function HomePage() {
             </p>
           </div>
           <div className="solution-grid">
-            {solutions.map((solution) => (
-              <article className="solution-card reveal" key={solution.number}>
+            {solutions.map((solution, index) => (
+              <article className="solution-card reveal" style={{ transitionDelay: `${index * 120}ms` }} key={solution.number}>
                 <div className="card-meta">
                   <span>
                     {solution.number} — {solution.label}
@@ -263,7 +292,7 @@ export function HomePage() {
             </p>
           </div>
           <div className="values-grid">
-            <article className="value-card reveal">
+            <article className="value-card reveal" style={{ transitionDelay: "0ms" }}>
               <small>01 / OUR BELIEF</small>
               <h3>
                 People
@@ -273,7 +302,7 @@ export function HomePage() {
               <p>We put understanding first and make every interaction count.</p>
               <span>✳</span>
             </article>
-            <article className="value-card value-green reveal">
+            <article className="value-card value-green reveal" style={{ transitionDelay: "120ms" }}>
               <small>02 / OUR PROMISE</small>
               <h3>
                 Clear steps.
@@ -283,7 +312,7 @@ export function HomePage() {
               <p>Helpful guidance at every point in the lending journey.</p>
               <span>↗</span>
             </article>
-            <article className="value-card value-gold reveal">
+            <article className="value-card value-gold reveal" style={{ transitionDelay: "240ms" }}>
               <small>03 / OUR AMBITION</small>
               <h3>
                 More people
@@ -361,7 +390,7 @@ export function HomePage() {
                 </div>
               </label>
             </div>
-            <div className="emi-result">
+            <div className={`emi-result${emiPulse ? " is-pulse" : ""}`}>
               <span>
                 <small>ESTIMATED MONTHLY EMI</small>
                 <strong>{formatINR(monthlyPayment)}</strong>
@@ -397,21 +426,23 @@ export function HomePage() {
 
         <section className="contact-section" id="contact">
           <div className="contact-orbit" aria-hidden="true" />
-          <p className="eyebrow"><i /> YOUR NEXT STEP STARTS HERE</p>
-          <h2>
-            Let&apos;s move
-            <br />
-            <em>forward together.</em>
-          </h2>
-          <p>
-            Contact Finergy Finance in Mumbai for personal finance, business finance, partnership enquiries, or grievance support.
-          </p>
-          <a
-            className="button button-gold"
-            href="mailto:grievance.officer@finergyfinance.com?subject=Finergy%20Finance%20enquiry"
-          >
-            Get in touch <span>↗</span>
-          </a>
+          <div className="contact-inner reveal">
+            <p className="eyebrow"><i /> YOUR NEXT STEP STARTS HERE</p>
+            <h2>
+              Let&apos;s move
+              <br />
+              <em>forward together.</em>
+            </h2>
+            <p>
+              Contact Finergy Finance in Mumbai for personal finance, business finance, partnership enquiries, or grievance support.
+            </p>
+            <a
+              className="button button-gold"
+              href="mailto:grievance.officer@finergyfinance.com?subject=Finergy%20Finance%20enquiry"
+            >
+              Get in touch <span>↗</span>
+            </a>
+          </div>
         </section>
       </main>
 
