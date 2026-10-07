@@ -117,8 +117,8 @@ export function HomePage() {
           <div className="hero-art reveal">
             <div className="hero-photo">
               <img
-                src="https://images.unsplash.com/photo-1531058020387-3be344556be6?auto=format&fit=crop&w=1400&q=88"
-                alt="Modern finance and growth architecture representing Finergy Finance NBFC solutions in India"
+                src="/images/hero-nbfc.jpg"
+                alt="Finergy Finance NBFC workspace with loan documents, EMI planning tools, and Mumbai skyline"
               />
             </div>
             <div className="hero-stamp">
@@ -221,8 +221,8 @@ export function HomePage() {
         <section className="approach" id="approach">
           <div className="approach-image reveal">
             <img
-              src="https://images.unsplash.com/photo-1519389950473-47ba0277781c?auto=format&fit=crop&w=1400&q=85"
-              alt="Finergy Finance team collaborating on customer-first lending and NBFC support in Mumbai"
+              src="/images/about-nbfc.jpg"
+              alt="Finergy Finance advisors guiding a customer through personal and business lending options"
             />
             <span className="image-label">
               THE FINERGY WAY <i>✳</i>
